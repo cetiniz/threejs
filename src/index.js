@@ -8,6 +8,7 @@ const maze = generateRandomMaze(MAZE_SIZE);
 
 console.log(maze);
 
+var geometry = new THREE.BoxGeometry( 1, 1, 1 );
 
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -16,6 +17,10 @@ var axesHelper = new THREE.AxesHelper(5);
 scene.add( axesHelper );
 
 const colors = [0x6ddada, 0xa559c7, 0x13699f, 0xe326a6, 0x5f5700, 0x169f49];
+const materials = [];
+for (let color in colors) {
+  materials.push(new THREE.MeshLambertMaterial({color: colors[color]}));
+}
 
 var light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
 scene.add( light );
@@ -64,7 +69,12 @@ for (let face = 0; face < 6; face ++) {
     faceGroup.add(addWall(actualRow + 1, actualCol - 1, 1, face, currentVertix.index % 100));
     faceGroup.add(addWall(actualRow + 1, actualCol + 1, 1, face, currentVertix.index % 100));
   }
-  window[`face${face}`] = faceGroup;
+  const plane = addPlane(MAZE_SIZE)
+  window[`plane${face}`] = plane;
+  plane.translateZ(0.5);
+  plane.translateX(13.5);
+  plane.translateY(13.5);
+  faceGroup.add(plane);
   rotateFace(face, faceGroup);
   cubeController.add(faceGroup);
 }
@@ -99,7 +109,7 @@ function rotateFace(face, group) {
   } else if (face === 1) {
     group.rotateY(Math.PI/2)
     group.translateZ(27)
-    face1.translateX(2)
+    group.translateX(2)
   } else if (face === 2) {
     group.rotateY(Math.PI/2)
     group.rotateX(-Math.PI/2)
@@ -123,10 +133,9 @@ function rotateFace(face, group) {
   }
 }
 
-function addWall(x, y, z, face, isBlack) {
-  var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-  var material = new THREE.MeshLambertMaterial({ color: !isBlack ? 0xffffff : isBlack % 10 === 9 ? 0xff0000  : colors[face] });
-  var cube = new THREE.Mesh( geometry, material );
+function addWall(x, y, z, face) {
+  const material = materials[face];
+  const cube = new THREE.Mesh( geometry, material );
 
   cube.position.copy({x: x, y: y, z: z})
   cube.updateMatrix();
@@ -135,8 +144,8 @@ function addWall(x, y, z, face, isBlack) {
 }
 
 function addPlane(squareSize) {
-  const geometry = new THREE.PlaneBufferGeometry( squareSize * 2 + 1, squareSize * 2, 1);
-  const material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+  const geometry = new THREE.PlaneBufferGeometry( squareSize * 3 - 2, squareSize * 3 - 2, 1);
+  const material = new THREE.MeshBasicMaterial( {color: 0xffffff, side: THREE.DoubleSide} );
   const plane = new THREE.Mesh( geometry, material );
   return plane;
 }
