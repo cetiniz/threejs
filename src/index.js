@@ -1,0 +1,153 @@
+import * as THREE from 'three';
+import OrbitControls from 'orbit-controls-es6';
+
+import generateRandomMaze from './graph.js';
+
+const MAZE_SIZE = 10;
+const maze = generateRandomMaze(MAZE_SIZE);
+
+console.log(maze);
+
+
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+var axesHelper = new THREE.AxesHelper(5);
+scene.add( axesHelper );
+
+const colors = [0x6ddada, 0xa559c7, 0x13699f, 0xe326a6, 0x5f5700, 0x169f49];
+
+var light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
+scene.add( light );
+
+var renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize( window.innerWidth, window.innerHeight );
+
+document.body.appendChild( renderer.domElement );
+
+var controls = new OrbitControls( camera, renderer.domElement );
+window.camera = camera;
+window.controls = controls;
+
+const cubeController = new THREE.Group();
+window.cubeController = cubeController;
+
+for (let face = 0; face < 6; face ++) {
+  const faceGroup = new THREE.Group();
+
+  for (let i = 0; i < 99; i++) {
+    const currentVertix = maze[i + (face * 99)];
+
+    const graphRow = Math.floor((currentVertix.index % 100) / MAZE_SIZE);
+    const actualRow = graphRow * 2 + graphRow;
+
+    const graphCol = currentVertix.index % MAZE_SIZE
+    const actualCol = graphCol * 2 + graphCol;
+
+    //console.log({actualRow, actualCol})
+
+    if (currentVertix.walls.up) {
+      faceGroup.add(addWall(actualRow - 1, actualCol, 1, face, currentVertix.index % 100));
+    }
+    if (currentVertix.walls.down) {
+      faceGroup.add(addWall(actualRow + 1, actualCol, 1, face, currentVertix.index % 100));
+    }
+    if (currentVertix.walls.left) {
+      faceGroup.add(addWall(actualRow, actualCol - 1, 1, face, currentVertix.index % 100));
+    }
+    if (currentVertix.walls.right) {
+      faceGroup.add(addWall(actualRow, actualCol + 1, 1, face, currentVertix.index % 100));
+    }
+    // Add Corners
+    faceGroup.add(addWall(actualRow - 1, actualCol - 1, 1, face, currentVertix.index % 100));
+    faceGroup.add(addWall(actualRow - 1, actualCol + 1, 1, face, currentVertix.index % 100));
+    faceGroup.add(addWall(actualRow + 1, actualCol - 1, 1, face, currentVertix.index % 100));
+    faceGroup.add(addWall(actualRow + 1, actualCol + 1, 1, face, currentVertix.index % 100));
+  }
+  window[`face${face}`] = faceGroup;
+  rotateFace(face, faceGroup);
+  cubeController.add(faceGroup);
+}
+
+
+window.cubeController = cubeController;
+
+scene.add(cubeController);
+
+window.addEventListener('keypress', handleKeyPress, false);
+
+function handleKeyPress(event) {
+  switch (event.charCode) {
+    case 97:
+      cubeController.rotateZ(Math.PI / 40);
+      break;
+    case 119:
+      cubeController.rotateX(Math.PI / 40);
+      break;
+    case 115:
+      cubeController.rotateX(Math.PI / -40);
+      break;
+    case 100:
+      cubeController.rotateZ(Math.PI / -40);
+      break;
+  } 
+}
+
+function rotateFace(face, group) {
+  if (face === 0 ) {
+    group.translateZ(-2);
+  } else if (face === 1) {
+    group.rotateY(Math.PI/2)
+    group.translateZ(27)
+    face1.translateX(2)
+  } else if (face === 2) {
+    group.rotateY(Math.PI/2)
+    group.rotateX(-Math.PI/2)
+    group.translateY(-27);
+    group.translateZ(27);
+    group.translateX(2);
+  } else if (face === 3) {
+    group.rotateZ(Math.PI/2);
+    group.rotateY(Math.PI);
+    group.translateY(-27);
+    group.translateZ(29)
+    group.translateX(-27)
+  } else if (face === 4) {
+    group.rotateZ(-Math.PI/2)
+    group.rotateX(Math.PI/2)
+    group.translateX(-27)
+    group.translateY(-29)
+  } else if (face === 5) {
+    group.rotateX(Math.PI/2);
+    group.translateY(-29)
+  }
+}
+
+function addWall(x, y, z, face, isBlack) {
+  var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+  var material = new THREE.MeshLambertMaterial({ color: !isBlack ? 0xffffff : isBlack % 10 === 9 ? 0xff0000  : colors[face] });
+  var cube = new THREE.Mesh( geometry, material );
+
+  cube.position.copy({x: x, y: y, z: z})
+  cube.updateMatrix();
+
+  return cube;
+}
+
+function addPlane(squareSize) {
+  const geometry = new THREE.PlaneBufferGeometry( squareSize * 2 + 1, squareSize * 2, 1);
+  const material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+  const plane = new THREE.Mesh( geometry, material );
+  return plane;
+}
+
+camera.position.z = 5;
+function animate() {
+  requestAnimationFrame( animate );
+  renderer.render( scene, camera );
+}
+
+window.camera = camera;
+window.controls = controls;
+
+animate();
