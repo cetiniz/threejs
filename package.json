@@ -13,6 +13,7 @@
     "dependencies": {
         "babel-preset-react": "^6.24.1",
         "orbit-controls-es6": "^2.0.0",
+        "stats.js": "^0.17.0",
         "three": "^0.97.0"
     },
     "devDependencies": {

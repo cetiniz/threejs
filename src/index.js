@@ -1,7 +1,13 @@
 import * as THREE from 'three';
 import OrbitControls from 'orbit-controls-es6';
+import Stats from 'stats.js';
 
 import generateRandomMaze from './graph.js';
+
+// FPS Information
+var stats = new Stats();
+stats.showPanel( 1 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+document.body.appendChild( stats.dom );
 
 const MAZE_SIZE = 10;
 const maze = generateRandomMaze(MAZE_SIZE);
@@ -70,7 +76,6 @@ for (let face = 0; face < 6; face ++) {
     faceGroup.add(addWall(actualRow + 1, actualCol + 1, 1, face, currentVertix.index % 100));
   }
   const plane = addPlane(MAZE_SIZE)
-  window[`plane${face}`] = plane;
   plane.translateZ(0.5);
   plane.translateX(13.5);
   plane.translateY(13.5);
@@ -79,6 +84,9 @@ for (let face = 0; face < 6; face ++) {
   cubeController.add(faceGroup);
 }
 
+cubeController.translateX(-13.5);
+cubeController.translateY(-13.5);
+cubeController.translateZ(13.5);
 
 window.cubeController = cubeController;
 
@@ -153,7 +161,9 @@ function addPlane(squareSize) {
 camera.position.z = 5;
 function animate() {
   requestAnimationFrame( animate );
+  stats.begin();
   renderer.render( scene, camera );
+  stats.end();
 }
 
 window.camera = camera;
