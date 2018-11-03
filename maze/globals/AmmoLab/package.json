@@ -1,0 +1,10 @@
+{
+  "name": "ammo.lab",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts":{
+    "build": "cd _compile && python build.py --include ammo.worker --output ../build/ammo.worker.js && python build.py --include ammo.worker --minify --output ../build/ammo.worker.min.js"
+  },
+  "author": "lth <3dflashlo@gmail.com>",
+  "license": "MIT"
+}
