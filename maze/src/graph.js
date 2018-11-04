@@ -229,9 +229,6 @@ class vertix {
     }
   }
   toggleWallWithVertix = (absoluteIndex, squareSize) => {
-    if (this.index === 109) {
-      debugger
-    }
     if (absoluteIndex - squareSize === this.index) {
       this.walls.down = false;
     } else if (absoluteIndex + squareSize === this.index) {

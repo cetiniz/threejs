@@ -6,21 +6,18 @@ import generateRandomMaze from './graph.js';
 
 // FPS Information
 var stats = new Stats();
-stats.showPanel( 1 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
 document.body.appendChild( stats.dom );
 
 const MAZE_SIZE = 10;
 const maze = generateRandomMaze(MAZE_SIZE);
 
-console.log(maze);
-
 var geometry = new THREE.BoxGeometry( 1, 1, 1 );
 
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-
-var axesHelper = new THREE.AxesHelper(5);
-scene.add( axesHelper );
+camera.position.set(50,25,30);
+camera.lookAt(0,0,0);
 
 const colors = [0x6ddada, 0xa559c7, 0x13699f, 0xe326a6, 0x5f5700, 0x169f49];
 const materials = [];
@@ -37,6 +34,9 @@ renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
 var controls = new OrbitControls( camera, renderer.domElement );
+controls.autoRotate = true;
+controls.autoRotateSpeed = 1;
+
 window.camera = camera;
 window.controls = controls;
 
@@ -162,6 +162,7 @@ camera.position.z = 5;
 function animate() {
   requestAnimationFrame( animate );
   stats.begin();
+  controls.update();
   renderer.render( scene, camera );
   stats.end();
 }
